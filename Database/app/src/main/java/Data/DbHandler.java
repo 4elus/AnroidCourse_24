@@ -46,6 +46,27 @@ public class DbHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    public int updateCar(Car car){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(Util.KEY_NAME, car.getName());
+        contentValues.put(Util.KEY_PRICE, car.getPrice());
+
+        return db.update(Util.TABLE_NAME, contentValues, Util.KEY_ID = "=?",
+                new String[]{String.valueOf(car.getId())});
+
+    }
+
+    public void deleteCar(Car car){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+
+        db.delete(Util.TABLE_NAME, Util.KEY_ID = "=?",
+                new String[]{String.valueOf(car.getId())});
+    }
+
+
     public Car getCar(int id){
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(Util.TABLE_NAME, new String[]{Util.KEY_ID, Util.KEY_NAME, Util.KEY_PRICE},
@@ -70,7 +91,8 @@ public class DbHandler extends SQLiteOpenHelper {
             int id = cursor.getInt(0);
             String name = cursor.getString(1);
             Double price = cursor.getDouble(2);
-            Log.i("Car", "Id: " + id + " Name: " + name + " Price: " + price + "\n");
+
+            carList.add(new Car(name, price));
         }
         cursor.close();
         db.close();
