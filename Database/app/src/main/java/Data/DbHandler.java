@@ -92,7 +92,9 @@ public class DbHandler extends SQLiteOpenHelper {
             String name = cursor.getString(1);
             Double price = cursor.getDouble(2);
 
-            carList.add(new Car(name, price));
+           // Log.i("allCars: ", "ID: " + id + " Name: " + name + " Price: " + price);
+
+            carList.add(new Car(id, name, price));
         }
         cursor.close();
         db.close();
