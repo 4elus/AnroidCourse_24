@@ -5,6 +5,7 @@ import static android.app.ProgressDialog.show;
 import static java.lang.System.in;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -21,6 +22,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class SignUp extends AppCompatActivity {
     Button signUPBTN;
@@ -32,20 +38,20 @@ public class SignUp extends AppCompatActivity {
     boolean logINSWITCH ;
     EditText confirmPassword;
     TextView logINTEXT;
+    FirebaseDatabase database;
+    DatabaseReference userDatabaseReference;
+    String username;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
-
         init();
-
         if(auth.getCurrentUser() != null){
             Intent intent = new Intent(SignUp.this, MainActivity.class);
             startActivity(intent);
         }
-
-
         signUPBTN.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,9 +68,9 @@ public class SignUp extends AppCompatActivity {
         logINTEXT = findViewById(R.id.tapTOLOG);
         auth = FirebaseAuth.getInstance();
 
-//        String email = emailEditText.getText().toString();
-//        String password = passwordEditText.getText().toString();
-//        String name = nameEditText.getText().toString();
+
+        database = FirebaseDatabase.getInstance();
+        userDatabaseReference = database.getReference().child("users");
     }
     public void signUser(String email, String password){
         if(logINSWITCH){
@@ -76,8 +82,8 @@ public class SignUp extends AppCompatActivity {
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.d(TAG, "signInWithEmail:success");
                                 FirebaseUser user = auth.getCurrentUser();
-                                Intent intent = new Intent(SignUp.this, MainActivity.class);
-                                startActivity(intent);
+
+
                             } else {
                                 // If sign in fails, display a message to the user.
                                 Log.w(TAG, "signInWithEmail:failure", task.getException());
@@ -87,24 +93,40 @@ public class SignUp extends AppCompatActivity {
                         }
                     });
         }else{
-            auth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                Log.d(TAG, "createUserWithEmail:success");
-                                FirebaseUser user = auth.getCurrentUser();
-                                Intent intent = new Intent(SignUp.this, MainActivity.class);
-                                startActivity(intent);
-                            } else {
-                                Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                                Toast.makeText(SignUp.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
+            if(passwordEditText.getText().toString().equals(confirmPassword.getText().toString() )){
+                    auth.createUserWithEmailAndPassword(email, password)
+                            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        Log.d(TAG, "createUserWithEmail:success");
+                                        FirebaseUser user = auth.getCurrentUser();
+                                        createUser(user);
+                                        Intent intent = new Intent(SignUp.this, MainActivity.class);
+                                        intent.putExtra("username", nameEditText.getText().toString().trim());
+                                        startActivity(intent);
+                                    } else {
+                                        Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                                        Toast.makeText(SignUp.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+            }else{
+                Intent intent = new Intent(SignUp.this, SignUp.class);
+                startActivity(intent);
+                Toast.makeText(this, "Пароли не совпадают", Toast.LENGTH_SHORT).show();
+            }
         }
     }
-
+    private void createUser(FirebaseUser firebaseUser) {
+        User user = new User();
+        user.setId(firebaseUser.getUid());
+        user.setEmail(firebaseUser.getEmail
+                ());
+        user.setName(nameEditText.getText()
+                .toString().trim());
+        userDatabaseReference.push().setValue(user);
+    }
     public void logIN(View view) {
         if(logINSWITCH){
             logINSWITCH = false;

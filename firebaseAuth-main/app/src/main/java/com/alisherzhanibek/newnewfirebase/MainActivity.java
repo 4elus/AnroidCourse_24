@@ -38,9 +38,12 @@ public class MainActivity extends AppCompatActivity {
     FirebaseDatabase database;
     DatabaseReference myRef;
 
+    FirebaseDatabase userDatabase;
     ChildEventListener messageChildEventListener;
+    ChildEventListener usersChildEventListener;
     private ImageButton deleteBtn;
     ArrayList<Message> arrayList;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -63,6 +66,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         init();
+        Intent intent = getIntent();
+        if(intent != null){
+            userName = intent.getStringExtra("username");
+        }
 
         Toolbar toolbar = new Toolbar(this);
 
@@ -70,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
                 LinearLayout.LayoutParams.MATCH_PARENT, 168);
         toolbar.setLayoutParams(layoutParams);
         toolbar.setPopupTheme(R.style.Base_Theme_NewnewFirebase);
-        toolbar.setBackgroundColor(getResources().getColor(R.color.black));
+        toolbar.setBackgroundColor(getResources().getColor(R.color.custom));
         toolbar.setTitle("This is the title");
         toolbar.setVisibility(View.VISIBLE);
 
@@ -135,7 +142,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
     }
     public void init(){
         sendImageButton = findViewById(R.id.imgSend);
@@ -152,6 +158,8 @@ public class MainActivity extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference("message");
+        
+
     }
     public void login(){
         Intent intent = new Intent(MainActivity.this, SignUp.class);
