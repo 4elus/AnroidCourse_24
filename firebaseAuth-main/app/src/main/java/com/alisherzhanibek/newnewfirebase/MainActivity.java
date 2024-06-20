@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,12 +20,18 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 
@@ -43,6 +50,10 @@ public class MainActivity extends AppCompatActivity {
     ChildEventListener usersChildEventListener;
     private ImageButton deleteBtn;
     ArrayList<Message> arrayList;
+    private static int RC_IMAGE_PICKER = 123;
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference imageRef;
+    StorageReference chatRef = storage.getReference();
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -87,8 +98,6 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
         toolbar.showOverflowMenu();
-
-
 
 
         sendMessageButton.setOnClickListener(new View.OnClickListener() {
@@ -142,6 +151,16 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        sendImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/jpeg");
+                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                startActivityForResult(Intent.createChooser(intent, "Choose an image"), RC_IMAGE_PICKER);
+            }
+        });
+
     }
     public void init(){
         sendImageButton = findViewById(R.id.imgSend);
@@ -158,12 +177,45 @@ public class MainActivity extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference("message");
-        
+
+        chatRef = storage.getReference("ChatImages");
 
     }
-    public void login(){
-        Intent intent = new Intent(MainActivity.this, SignUp.class);
-        startActivity(intent);
-    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK && requestCode == RC_IMAGE_PICKER){
+            Uri uri = data.getData();
+            imageRef = chatRef.child(uri.getLastPathSegment());
+            Toast.makeText(this, "Image: " + imageRef, Toast.LENGTH_SHORT).show();
+
+            UploadTask uploadTask = imageRef.putFile(uri);
+            uploadTask = imageRef.putFile(uri);
+
+            Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+
+                    // Continue with the task to get the download URL
+                    return imageRef.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()) {
+                        Uri downloadUri = task.getResult();
+                        Message message = new Message();
+                        message.setImageurl(downloadUri.toString());
+                        message.setName(userName);
+                        myRef.push().setValue(message);
+                    } else {
+                    }
+                }
+            });
+        }
+    }
 }
