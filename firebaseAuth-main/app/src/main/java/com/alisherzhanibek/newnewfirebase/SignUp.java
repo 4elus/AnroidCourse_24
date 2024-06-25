@@ -2,10 +2,7 @@ package com.alisherzhanibek.newnewfirebase;
 
 import static android.app.ProgressDialog.show;
 
-import static java.lang.System.in;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -22,9 +19,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -49,7 +43,7 @@ public class SignUp extends AppCompatActivity {
 
         init();
         if(auth.getCurrentUser() != null){
-            Intent intent = new Intent(SignUp.this, MainActivity.class);
+            Intent intent = new Intent(SignUp.this, UserListActivity.class);
             startActivity(intent);
         }
         signUPBTN.setOnClickListener(new View.OnClickListener() {
@@ -83,7 +77,6 @@ public class SignUp extends AppCompatActivity {
                                 Log.d(TAG, "signInWithEmail:success");
                                 FirebaseUser user = auth.getCurrentUser();
 
-
                             } else {
                                 // If sign in fails, display a message to the user.
                                 Log.w(TAG, "signInWithEmail:failure", task.getException());
@@ -102,7 +95,7 @@ public class SignUp extends AppCompatActivity {
                                         Log.d(TAG, "createUserWithEmail:success");
                                         FirebaseUser user = auth.getCurrentUser();
                                         createUser(user);
-                                        Intent intent = new Intent(SignUp.this, MainActivity.class);
+                                        Intent intent = new Intent(SignUp.this, UserListActivity.class);
                                         intent.putExtra("username", nameEditText.getText().toString().trim());
                                         startActivity(intent);
                                     } else {

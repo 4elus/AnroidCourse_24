@@ -4,6 +4,7 @@ public class Message {
     private String text;
     private String name;
     private String imageurl;
+    private String sendIMG;
 
     Message(){}
 
@@ -37,5 +38,13 @@ public class Message {
         this.imageurl = imageurl;
     }
 
+    ////////////
+    public String getSendIMG() {
+        return sendIMG;
+    }
+
+    public void setSendIMG(String sendIMG) {
+        this.sendIMG = sendIMG;
+    }
 }
 

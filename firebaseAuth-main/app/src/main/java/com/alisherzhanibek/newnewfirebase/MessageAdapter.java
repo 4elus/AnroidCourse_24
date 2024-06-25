@@ -29,6 +29,15 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         ImageView photoImageView = convertView.findViewById(R.id.imageView);
         TextView nameView = convertView.findViewById(R.id.nameView);
         TextView textView = convertView.findViewById(R.id.textView);
+        ImageView sendImage = convertView.findViewById(R.id.sendImgView);
+
+
+        //
+        if(sendImage == null){
+            sendImage.setVisibility(View.VISIBLE);
+        }else{
+            sendImage.setVisibility(View.GONE);
+        }
 
         Message message = getItem(position);
 
@@ -38,10 +47,14 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             textView.setText(message.getText());
         }else{
             textView.setVisibility(View.GONE);
-            photoImageView.setVisibility(View.VISIBLE);
-            Glide.with(photoImageView.getContext())
-                    .load(message.getImageurl())
-                    .into(photoImageView);
+//            photoImageView.setVisibility(View.VISIBLE);
+            sendImage.setVisibility(View.VISIBLE);
+//            Glide.with(photoImageView.getContext())
+//                    .load(message.getImageurl())
+//                    .into(photoImageView);
+            Glide.with(sendImage.getContext())
+                    .load(message.getSendIMG())
+                    .into(sendImage);
         }
         nameView.setText(message.getName());
         return convertView;
