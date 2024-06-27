@@ -45,6 +45,7 @@ public class ChatActivity extends AppCompatActivity {
     DatabaseReference myRef;
 
     FirebaseDatabase userDatabase;
+    FirebaseAuth auth;
     ChildEventListener messageChildEventListener;
     ChildEventListener usersChildEventListener;
     private ImageButton deleteBtn;
@@ -54,6 +55,8 @@ public class ChatActivity extends AppCompatActivity {
     StorageReference imageRef;
     StorageReference chatRef = storage.getReference();
     DatabaseReference userDatabaseReference;
+    String recipientUserId;
+    String recipientUserName;
 
 
     @Override
@@ -65,8 +68,8 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if(item.getItemId() == R.id.signout){
-            FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(ChatActivity.this, SignUp.class));
+//            FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(ChatActivity.this, UserListActivity.class));
             return true;
         }else{
             return super.onOptionsItemSelected(item);
@@ -81,7 +84,13 @@ public class ChatActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if(intent != null){
             userName = intent.getStringExtra("username");
+            recipientUserId = intent.getStringExtra("recipientUserId");
+            recipientUserName = intent.getStringExtra("recipientUserName");
+        }else{
+            userName = "Default user";
         }
+        setTitle("Chat with " + recipientUserName);
+
 
         Toolbar toolbar = new Toolbar(this);
 
@@ -90,7 +99,7 @@ public class ChatActivity extends AppCompatActivity {
         toolbar.setLayoutParams(layoutParams);
         toolbar.setPopupTheme(R.style.Base_Theme_NewnewFirebase);
         toolbar.setBackgroundColor(getResources().getColor(R.color.custom));
-        toolbar.setTitle("This is the title");
+//        toolbar.setTitle("This is the title");
         toolbar.setVisibility(View.VISIBLE);
 
         // Assuming in activity_main, you are using LinearLayout as root
@@ -108,7 +117,9 @@ public class ChatActivity extends AppCompatActivity {
                 Message message = new Message();
                 message.setText(messageEditText.getText().toString());
                 message.setName(userName);
-                //
+                message.setSender(auth.getCurrentUser().getUid());
+                message.setRecipient(recipientUserId);
+
                 message.setImageurl(null);
                 if(!messageEditText.getText().toString().isEmpty()){
                     myRef.push().setValue(message);
@@ -124,7 +135,11 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Message message = dataSnapshot.getValue(Message.class);
-                messageAdapter.add(message); // adapter - message_item
+                if (message.getSender().equals(auth.getCurrentUser().getUid()) && message.getRecipient().equals(recipientUserId)) {
+                    messageAdapter.add(message);
+                }else if (message.getRecipient().equals(auth.getCurrentUser().getUid()) && message.getSender().equals(recipientUserId)) {
+                    messageAdapter.add(message);
+                }
             }
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -144,6 +159,7 @@ public class ChatActivity extends AppCompatActivity {
             }
         };
         myRef.addChildEventListener(messageChildEventListener);
+
         usersChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -208,10 +224,11 @@ public class ChatActivity extends AppCompatActivity {
         listView.setAdapter(messageAdapter);
 
         database = FirebaseDatabase.getInstance();
-
         myRef = database.getReference("message");
         chatRef = storage.getReference("ChatImages");
         userDatabaseReference = database.getReference("users");
+
+        auth = FirebaseAuth.getInstance();
 
 
     }
@@ -243,6 +260,8 @@ public class ChatActivity extends AppCompatActivity {
                         message.setSendIMG(downloadUri.toString());
                         message.setImageurl(downloadUri.toString());
                         message.setName(userName);
+                        message.setRecipient(recipientUserId);
+                        message.setSender(auth.getCurrentUser().getUid());
                         myRef.push().setValue(message);
                     } else {
                     }
