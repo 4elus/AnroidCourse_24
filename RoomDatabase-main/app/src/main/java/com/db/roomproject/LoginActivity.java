@@ -23,11 +23,9 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etPassword;
     private Button btnLoginOrSignUp;
     UserDao userDao;
-    ItemDao itemDao;
     List<User> userList;
-    List<Item> itemList;
     TextView tvSignUpOrLogin;
-    boolean loginOrSignUpBtn = true;
+    boolean loginOrSignUpBtn = false;
     TextView tvName;
     TextView tvEmail;
     EditText etEmail;
@@ -46,30 +44,23 @@ public class LoginActivity extends AppCompatActivity {
                         String name = etLoginId.getText().toString().trim();
                         String email = etEmail.getText().toString().trim();
                         String password = etPassword.getText().toString().trim();
-                        if (loginOrSignUpBtn) {
-                            if (!name.isEmpty() && !email.isEmpty() && !password.isEmpty()) {
+
+                        if (loginOrSignUpBtn == false) {
+                            if (!name.isEmpty() && !email.isEmpty() && !password.isEmpty()){
                                 User user = new User();
-//                                user.setLoginId();
                                 user.setPassword(password);
                                 user.setFullName(name);
                                 user.setEmail(email);
                                 userDao.insert(user);
-
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                startActivity(intent);
-
-//                                Item item = new Item();
-//                                item.setName("Burger");
-//                                item.setDescription("desc burger");
-//                                item.setPrice(1000);
-//                                item.setIamge(R.drawable.burger);
-//                                itemDao.insert(item);
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
                                         Toast.makeText(LoginActivity.this, "created", Toast.LENGTH_SHORT).show();
                                     }
                                 });
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                intent.putExtra("email", user.getEmail());
+                                startActivity(intent);
                             } else {
                                 runOnUiThread(new Runnable() {
                                     @Override
@@ -79,22 +70,30 @@ public class LoginActivity extends AppCompatActivity {
                                 });
                             }
                         } else {
-                            // для входа
+                            if(!email.isEmpty() && !password.isEmpty()){
+                                User user = userDao.getUserByLoginId(email);
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if(user != null){
+                                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                            intent.putExtra("email", user.getEmail());
+                                            startActivity(intent);
+                                            Toast.makeText(LoginActivity.this, "Hello, " + user.getFullName(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                            }
                         }
-
                     }
                 });
             }
         });
     }
-
     public void init() {
         userDao = Room.databaseBuilder(this, AppDatabase.class, DbConfig.ROOM_DB_NAME)
-                //.fallbackToDestructiveMigration()
+//                .fallbackToDestructiveMigration()
                 .build().userDao();
-        itemDao = Room.databaseBuilder(this, AppDatabase.class, DbConfig.ROOM_DB_NAME)
-                //.fallbackToDestructiveMigration()
-                .build().itemDao();
         //.addMigrations(AppDatabase.MIGRATION_1_2)
         etLoginId = findViewById(R.id.logInEditText);
         etPassword = findViewById(R.id.passwordEditText);
@@ -104,22 +103,21 @@ public class LoginActivity extends AppCompatActivity {
         tvEmail = findViewById(R.id.visibleEmail);
         etEmail = findViewById(R.id.emailEditText);
     }
-
     public void loginOrSignUpText(View view) {
         if (loginOrSignUpBtn) {
             loginOrSignUpBtn = false;
             btnLoginOrSignUp.setText("Sign up");
             tvSignUpOrLogin.setText("Or log in");
 
-            tvEmail.setVisibility(View.VISIBLE);
-            etEmail.setVisibility(View.VISIBLE);
+            etLoginId.setVisibility(View.VISIBLE);
+            tvName.setVisibility(View.VISIBLE);
         } else {
             loginOrSignUpBtn = true;
             btnLoginOrSignUp.setText("Log in");
             tvSignUpOrLogin.setText("Or, sign up");
 
-            tvEmail.setVisibility(View.GONE);
-            etEmail.setVisibility(View.GONE);
+            etLoginId.setVisibility(View.GONE);
+            tvName.setVisibility(View.GONE);
         }
     }
 }
