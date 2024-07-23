@@ -8,50 +8,28 @@ import androidx.room.Room;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.Button;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-// Пример MainActivity
-public class MainActivity extends AppCompatActivity {
+public class DeleteActivity extends AppCompatActivity {
 
     private RecyclerView itemRecycler;
-    private ItemRecyclerView itemAdapter;
-    private ItemDao itemDao;
-    FloatingActionButton floatingActionButton;
+    private DeleteItemRecyler deleteAdapter;
+    Button button;
+    ItemDao itemDao;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_delete);
         init();
 
-    //    Bundle argument = getIntent().getExtras();
-//        String email = argument.get("email").toString();
-    //    Toast.makeText(this, "Hello " + email, Toast.LENGTH_SHORT).show();
-
-        floatingActionButton = findViewById(R.id.floatingBtn);
-        String email = "admin@mail.ru";
-        if(email.equals("admin@mail.ru")){
-            floatingActionButton.setVisibility(View.VISIBLE);
-        }else{
-            floatingActionButton.setVisibility(View.GONE);
-        }
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, AddItemActivity.class);
-                startActivity(intent);
-            }
-        });
         executorService.execute(new Runnable() {
             @Override
             public void run() {
@@ -59,10 +37,18 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        itemAdapter = new ItemRecyclerView(itemList);
-                        itemRecycler.setAdapter(itemAdapter);
+                        deleteAdapter = new DeleteItemRecyler(itemList, itemDao, executorService);
+                        itemRecycler.setAdapter(deleteAdapter);
                     }
                 });
+            }
+        });
+        button = findViewById(R.id.taptomain);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DeleteActivity.this, MainActivity.class);
+                startActivity(intent);
             }
         });
     }

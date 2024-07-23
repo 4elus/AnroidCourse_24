@@ -1,8 +1,10 @@
 package com.db.roomproject;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -40,9 +42,15 @@ public class ItemRecyclerView extends RecyclerView.Adapter<ItemRecyclerView.Recy
         holder.nameView.setText(item.getName());
         holder.descView.setText(item.getDescription());
 
-
-
         //        holder.priceView.setText(item.getPrice());
+        holder.moreBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), MoreActivity.class);
+                intent.putExtra("itemName", item.getName());
+                v.getContext().startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -54,14 +62,13 @@ public class ItemRecyclerView extends RecyclerView.Adapter<ItemRecyclerView.Recy
         public ImageView imageView;
         public TextView nameView;
         public TextView descView;
-//        public TextView priceView;
-
+        public Button moreBtn;
         public RecyclerViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.image);
             nameView = itemView.findViewById(R.id.name);
             descView = itemView.findViewById(R.id.description);
-//            priceView = itemView.findViewById(R.id.price);
+            moreBtn = itemView.findViewById(R.id.moreBtn);
         }
     }
 }

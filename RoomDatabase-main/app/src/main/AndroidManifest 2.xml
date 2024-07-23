@@ -13,9 +13,6 @@
         android:theme="@style/Theme.RoomProject"
         tools:targetApi="31">
         <activity
-            android:name=".MoreActivity"
-            android:exported="false" />
-        <activity
             android:name=".UpdateActivity"
             android:exported="false" />
         <activity
@@ -25,10 +22,10 @@
             android:name=".AddItemActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".MainActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
