@@ -69,10 +69,26 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Buy Now"
+        android:text="Add to cart"
         android:layout_marginTop="16dp"
         android:backgroundTint="#000000"
-        android:onClick="buyNow"
+        android:onClick="addtocart"
+        />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Checkout"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#000000"
+        android:onClick="Checkout"
+        />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tap to main"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#000000"
+        android:onClick="taptomaina"
         />
 
 </LinearLayout>
