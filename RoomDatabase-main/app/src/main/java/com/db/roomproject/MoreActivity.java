@@ -100,9 +100,12 @@ public class MoreActivity extends AppCompatActivity {
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                Order checkOder = orderDao.getOrderByNameId(item.getName().toString());
-                // update для предметов
-                if(){
+                Order checkOrder = orderDao.getOrderByNameId(item.getName().toString());
+                if(checkOrder != null){
+                    // если нашел товар с таким же именем => обновляет его количество
+                    int newCheckOrder = checkOrder.getItem_count() + count;
+                    checkOrder.setItem_count(newCheckOrder);
+                    orderDao.update(checkOrder);
                 }else{
                     order = new Order();
                     order.setItem_name(item.getName().toString());
@@ -128,6 +131,7 @@ public class MoreActivity extends AppCompatActivity {
     }
     public void taptomaina(View view) {
         Intent intent = new Intent(MoreActivity.this, MainActivity.class);
+        intent.putExtra("email", ConfigUser.EMAIL_USER);
         startActivity(intent);
     }
 }

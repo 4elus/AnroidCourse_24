@@ -35,9 +35,12 @@ public class MainActivity extends AppCompatActivity {
         init();
 
         Bundle argument = getIntent().getExtras();
-        ConfigUser.EMAIL_USER = argument.get("email").toString();
-
-        Toast.makeText(this, "Hello " + ConfigUser.EMAIL_USER, Toast.LENGTH_SHORT).show();
+        if(argument != null){
+            ConfigUser.EMAIL_USER = argument.get("email").toString();
+            Toast.makeText(this, "Hello " + ConfigUser.EMAIL_USER, Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(this, "Email не найден", Toast.LENGTH_SHORT).show();
+        }
 
         floatingActionButton = findViewById(R.id.floatingBtn);
         if(ConfigUser.EMAIL_USER.equals("admin@mail.ru")){
