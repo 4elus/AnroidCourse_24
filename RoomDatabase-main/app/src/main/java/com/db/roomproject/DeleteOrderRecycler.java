@@ -19,6 +19,7 @@ public class DeleteOrderRecycler extends RecyclerView.Adapter<DeleteOrderRecycle
     private OrderDao orderDao;
     private ExecutorService executorService;
 
+
     public DeleteOrderRecycler(List<Order> orderList, OrderDao orderDao, ExecutorService executorService) {
         this.orderList = orderList;
         this.orderDao = orderDao;
@@ -43,12 +44,22 @@ public class DeleteOrderRecycler extends RecyclerView.Adapter<DeleteOrderRecycle
         holder.orderDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                ConfigUser.TEXT_VIEW.setText("0");
+
+
                 executorService.execute(new Runnable() {
                     @Override
                     public void run() {
                         orderDao.delete(order);
                         orderList.remove(position);
                         notifyItemRemoved(position);
+
+                        List<Order> list = orderDao.getOrdersByEmailo(ConfigUser.EMAIL_USER);
+                        int sum = 0;
+                        for (Order elem:list) {
+                            sum += elem.getItem_count() * elem.getPrice();
+                        }
+                        ConfigUser.TEXT_VIEW.setText(String.valueOf(sum));
                     }
                 });
             }

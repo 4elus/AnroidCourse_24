@@ -23,7 +23,7 @@ public class BuyItemActivity extends AppCompatActivity {
     OrderDao orderDao;
     List<Order> order;
     int sum = 0;
-    TextView finalPrice;
+
     Button confirmBtn;
     RecyclerView recyclerView;
     DeleteOrderRecycler orderAdapter;
@@ -43,7 +43,7 @@ public class BuyItemActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setHasFixedSize(true);
 
-        finalPrice = findViewById(R.id.finalPrice);
+        ConfigUser.TEXT_VIEW = findViewById(R.id.finalPrice);
 
         executorService.execute(new Runnable() {
             @Override
@@ -58,7 +58,7 @@ public class BuyItemActivity extends AppCompatActivity {
                         for (Order elem:order) {
                             sum += elem.getItem_count() * elem.getPrice();
                         }
-                        finalPrice.setText(String.valueOf(sum));
+                        ConfigUser.TEXT_VIEW.setText(String.valueOf(sum));
                     }
                 });
             }
